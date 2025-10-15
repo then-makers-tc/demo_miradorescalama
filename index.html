@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video en Realidad Aumentada — WebAR</title>
+
+    <!-- A-Frame + AR.js -->
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.3/aframe/build/aframe-ar.js"></script>
+
+    <style>
+      body { margin: 0; overflow: hidden; }
+      #loading {
+        position: fixed; inset: 0;
+        display: flex; align-items: center; justify-content: center;
+        background: #000; color: #fff; font-family: sans-serif;
+        z-index: 1000;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="loading">Cargando cámara y marcador...</div>
+
+    <!-- Escena AR -->
+    <a-scene
+      embedded
+      arjs="sourceType: webcam; debugUIEnabled: false;"
+      vr-mode-ui="enabled: false"
+      renderer="alpha: true; antialias: true;"
+      loading-screen="enabled: false">
+
+      <!-- Cámara -->
+      <a-camera-static></a-camera-static>
+
+      <!-- Marcador propio -->
+      <a-marker type="pattern" url="marker.patt">
+        <!-- Video como textura transparente -->
+        <a-video
+          src="#video1"
+          width="1.6" height="0.9"
+          rotation="-90 0 0"
+          position="0 0 0"
+          material="transparent:true; opacity:1;">
+        </a-video>
+      </a-marker>
+
+      <!-- Entidad de video oculta -->
+      <video
+        id="video1"
+        src="video.webm"
+        preload="auto"
+        loop
+        muted
+        playsinline
+        crossorigin="anonymous"
+        style="display:none">
+      </video>
+    </a-scene>
+
+    <script>
+      // Espera a que la cámara esté lista
+      window.addEventListener('arReady', () => {
+        document.getElementById('loading').style.display = 'none';
+        const video = document.getElementById('video1');
+        video.play().catch(() => {
+          // Si el autoplay falla (por políticas móviles), espera el toque del usuario
+          document.body.addEventListener('click', () => video.play(), { once: true });
+        });
+      });
+    </script>
+  </body>
+</html>
