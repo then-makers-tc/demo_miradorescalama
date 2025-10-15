@@ -23,7 +23,6 @@
   <body>
     <div id="loading">Cargando cámara y marcador...</div>
 
-    <!-- Escena AR -->
     <a-scene
       embedded
       arjs="sourceType: webcam; debugUIEnabled: false;"
@@ -32,11 +31,11 @@
       loading-screen="enabled: false">
 
       <!-- Cámara -->
-      <a-camera-static></a-camera-static>
+      <a-camera></a-camera>
 
       <!-- Marcador propio -->
-      <a-marker type="pattern" url="marker.patt">
-        <!-- Video como textura transparente -->
+      <a-marker type="pattern" url="marker.patt" id="myMarker">
+        <!-- Video transparente -->
         <a-video
           src="#video1"
           width="1.6" height="0.9"
@@ -46,29 +45,41 @@
         </a-video>
       </a-marker>
 
-      <!-- Entidad de video oculta -->
+      <!-- Video oculto -->
       <video
         id="video1"
-        src="video.webm"
+        src="video.mp4"         <!-- Cambiado a MP4 -->
         preload="auto"
         loop
         muted
         playsinline
-        crossorigin="anonymous"
+        webkit-playsinline
         style="display:none">
       </video>
     </a-scene>
 
     <script>
-      // Espera a que la cámara esté lista
-      window.addEventListener('arReady', () => {
-        document.getElementById('loading').style.display = 'none';
-        const video = document.getElementById('video1');
+      const loading = document.getElementById('loading');
+      const marker = document.getElementById('myMarker');
+      const video = document.getElementById('video1');
+
+      // Quitar pantalla de carga al iniciar AR
+      document.querySelector('a-scene').addEventListener('loaded', () => {
+        loading.style.display = 'none';
+      });
+
+      // Reproducir video al detectar el marcador
+      marker.addEventListener('markerFound', () => {
         video.play().catch(() => {
-          // Si el autoplay falla (por políticas móviles), espera el toque del usuario
-          document.body.addEventListener('click', () => video.play(), { once: true });
+          // Si autoplay falla, reproduce tras primer toque
+          const playVideo = () => {
+            video.play();
+            document.body.removeEventListener('click', playVideo);
+          };
+          document.body.addEventListener('click', playVideo);
         });
       });
     </script>
   </body>
 </html>
+
