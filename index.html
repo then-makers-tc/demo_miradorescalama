@@ -49,12 +49,12 @@
       <!-- Video oculto -->
       <video
         id="video1"
-        src="video.webm"
+        src="video.mp4"      <!-- Cambiado a MP4 -->
         preload="auto"
         loop
         muted
         playsinline
-        crossorigin="anonymous"
+        webkit-playsinline
         style="display:none">
       </video>
     </a-scene>
@@ -64,7 +64,7 @@
       const marker = document.getElementById('myMarker');
       const video = document.getElementById('video1');
 
-      // Quitar pantalla de carga al iniciar AR.js
+      // Quitar pantalla de carga al iniciar AR
       document.querySelector('a-scene').addEventListener('loaded', () => {
         loading.style.display = 'none';
       });
@@ -72,12 +72,15 @@
       // Reproducir video al detectar el marcador
       marker.addEventListener('markerFound', () => {
         video.play().catch(() => {
-          // Si autoplay falla en móviles, espera toque
-          document.body.addEventListener('click', () => video.play(), { once: true });
+          // Si autoplay falla, reproduce tras primer toque
+          const playVideo = () => {
+            video.play();
+            document.body.removeEventListener('click', playVideo);
+          };
+          document.body.addEventListener('click', playVideo);
         });
       });
     </script>
   </body>
 </html>
-
 
